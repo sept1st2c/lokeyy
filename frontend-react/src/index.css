@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #0a0a0a;
+  --color-canvas-soft: #1a1c20;
+  --color-canvas-card: #191919;
+  --color-canvas-mid: #363a3f;
+  --color-hairline: #212327;
+  --color-ink: #ffffff;
+  --color-ink-hover: #fafaf7;
+  --color-body: #dadbdf;
+  --color-body-mid: #7d8187;
+  --color-sunset: #ff7a17;
+  --color-sunset-soft: #ffc285;
+  --color-dusk: #7c3aed;
+  --color-twilight: #c4b5fd;
+  --color-breeze: #a0c3ec;
+  --color-midnight: #0d1726;
+
+  --font-display: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono-brand: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+
+  --radius-pill: 9999px;
+}
+
 :root {
   color-scheme: dark;
 }
@@ -14,9 +37,9 @@ html, body, #root {
 
 body {
   margin: 0;
-  background: #0b0c10;
-  color: #e5e7eb;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -29,11 +52,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2e303a;
+  background: var(--color-canvas-mid);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d3f4a;
+  background: #4a4f57;
 }
 
 @keyframes fadeSlideIn {
@@ -50,4 +73,29 @@ body {
 }
 .pulse-dot {
   animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+/* Scroll-reveal: opt in via the Reveal component, no library needed. */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes driftGlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, -3%) scale(1.05); }
+}
+.drift-glow {
+  animation: driftGlow 14s ease-in-out infinite;
+}
+
+@keyframes gridPan {
+  from { background-position: 0 0; }
+  to { background-position: 0 -800px; }
 }

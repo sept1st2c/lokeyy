@@ -49,10 +49,28 @@ class QueryRequest(BaseModel):
 
 @app.get("/api/status")
 def status():
+    # Sources with any quarantined content are attack/test documents, not
+    # trusted brand sources -- their existence is already surfaced via the
+    # "N injection attempts neutralized" badge, so don't also list them here
+    # with a "verified/uploaded" checkmark, which would read as a
+    # contradiction (a flagged attack doc being shown as trusted).
+    quarantined_sources = {q["source"] for q in STATE["quarantined"]}
+
+    sources: dict = {}
+    for c in STATE["clean_chunks"]:
+        src = c["source"]
+        if src in quarantined_sources:
+            continue
+        entry = sources.setdefault(
+            src, {"filename": src, "tier": c.get("tier", "B"), "chunk_count": 0}
+        )
+        entry["chunk_count"] += 1
+
     return {
         "clean_chunks": len(STATE["clean_chunks"]),
         "quarantined": STATE["quarantined"],
         "rules_count": len(STATE["rules"]),
+        "sources": list(sources.values()),
     }
 
 

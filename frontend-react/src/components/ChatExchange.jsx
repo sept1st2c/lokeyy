@@ -9,7 +9,7 @@ export default function ChatExchange({ exchange }) {
     <div className="space-y-3 animate-fade-in">
       {/* user bubble */}
       <div className="flex justify-end">
-        <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tr-sm bg-sky-600/90 text-white text-sm shadow-sm">
+        <div className="max-w-[80%] px-4 py-2.5 rounded-sm bg-ink text-canvas text-sm">
           {query}
         </div>
       </div>
@@ -17,18 +17,18 @@ export default function ChatExchange({ exchange }) {
       {/* assistant bubble */}
       <div className="flex justify-start">
         <div className="max-w-[85%] w-full space-y-3">
-          <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-slate-800/80 border border-slate-700/60 text-sm text-slate-100 shadow-sm">
+          <div className="px-4 py-3 rounded-sm bg-canvas-card border border-hairline text-sm text-ink">
             {loading ? (
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2 text-body-mid">
                 <span className="flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 pulse-dot" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 pulse-dot" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 pulse-dot" style={{ animationDelay: "300ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-body-mid pulse-dot" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-body-mid pulse-dot" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-body-mid pulse-dot" style={{ animationDelay: "300ms" }} />
                 </span>
                 Thinking through brand guidelines…
               </div>
             ) : error ? (
-              <div className="text-rose-300">Error: {error}</div>
+              <div className="text-[#ff9a8a]">Error: {error}</div>
             ) : (
               <CitedText text={response.final_answer} sourcesCited={response.sources_cited} className="leading-relaxed" />
             )}
@@ -42,8 +42,11 @@ export default function ChatExchange({ exchange }) {
                 passes={response.passes}
               />
               {response.violations?.length > 0 && (
-                <div className="px-4 py-2.5 rounded-lg border border-rose-800/40 bg-rose-950/20 text-xs text-rose-300">
-                  <span className="font-semibold">Violations: </span>
+                <div
+                  className="px-4 py-2.5 rounded-sm border text-xs"
+                  style={{ borderColor: "rgba(255,154,138,0.3)", background: "rgba(255,154,138,0.06)", color: "#ff9a8a" }}
+                >
+                  <span className="font-medium">Violations: </span>
                   {response.violations.join("; ")}
                 </div>
               )}

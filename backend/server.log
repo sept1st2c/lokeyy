@@ -1,22 +1,21 @@
-INFO:     Started server process [11824]
+INFO:     Started server process [9864]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 [startup] 24 clean chunks, 1 quarantined, 48 rules extracted
-INFO:     127.0.0.1:61811 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61812 - "GET /api/graph HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54141 - "POST /api/query HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57058 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57545 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57546 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56132 - "POST /api/query HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61212 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61213 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61214 - "POST /api/query HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52630 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52728 - "GET /api/graph HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52225 - "GET /api/graph HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61854 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61855 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61856 - "GET /api/graph HTTP/1.1" 200 OK
-INFO:     127.0.0.1:61857 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54032 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51496 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51497 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51498 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51499 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53852 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50371 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57507 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55288 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55289 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55290 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55291 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62310 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50892 - "GET /api/graph HTTP/1.1" 200 OK
