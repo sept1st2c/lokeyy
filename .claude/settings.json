@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude -p --help)",
+      "Bash(claude -p \"Say hello in exactly 3 words\" --output-format json --no-session-persistence --tools \"\")",
+      "Bash(claude -p \"Say hello in exactly 3 words\" --output-format json --no-session-persistence --tools \"\" --system-prompt \"You are a helpful assistant. Respond only with the requested text, nothing else.\")"
+    ]
+  }
+}

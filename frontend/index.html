@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>LOCI — Cognition & Brand Memory Engine</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", sans-serif;
+    background: #0f1115; color: #e6e6e6; min-height: 100vh;
+  }
+  header { padding: 28px 40px 10px; border-bottom: 1px solid #23262e; }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: 0.5px; }
+  header p { margin: 6px 0 0; color: #8a8f98; font-size: 13px; }
+  #status { padding: 10px 40px; font-size: 12px; color: #8a8f98; }
+  #status span.badge {
+    background: #1b2130; border: 1px solid #2c3444; border-radius: 20px;
+    padding: 3px 10px; margin-right: 8px; color: #9fb4ff;
+  }
+  main { max-width: 900px; margin: 0 auto; padding: 20px 40px 60px; }
+  .query-row { display: flex; gap: 10px; }
+  input[type=text] {
+    flex: 1; padding: 12px 14px; border-radius: 8px; border: 1px solid #2c3444;
+    background: #161a22; color: #e6e6e6; font-size: 14px;
+  }
+  button {
+    padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer;
+    background: #4f6bff; color: white; font-size: 14px; font-weight: 600;
+  }
+  button:disabled { background: #333a4a; cursor: default; }
+  .card {
+    background: #161a22; border: 1px solid #23262e; border-radius: 10px;
+    padding: 18px 20px; margin-top: 18px;
+  }
+  .scores { display: flex; gap: 24px; margin-bottom: 12px; }
+  .score { font-size: 13px; color: #8a8f98; }
+  .score b { display: block; font-size: 22px; color: #e6e6e6; }
+  .answer { white-space: pre-wrap; line-height: 1.5; font-size: 14.5px; }
+  .cite { color: #9fb4ff; font-weight: 600; }
+  .violations { margin-top: 10px; color: #ff9a9a; font-size: 13px; }
+  details { margin-top: 16px; }
+  summary {
+    cursor: pointer; font-size: 13px; color: #9fb4ff; outline: none;
+  }
+  .trace-step {
+    border-left: 2px solid #2c3444; padding: 8px 0 8px 14px; margin-top: 10px;
+    font-size: 12.5px; color: #b8bdc6;
+  }
+  .trace-step .label { color: #9fb4ff; font-weight: 600; margin-right: 6px; }
+  pre { white-space: pre-wrap; margin: 4px 0 0; font-size: 12px; }
+  .pass { color: #7ee787; }
+  .fail { color: #ff9a9a; }
+  #loading { color: #8a8f98; font-size: 13px; margin-top: 12px; display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>LOCI</h1>
+  <p>Cognition & Brand Memory Engine — retrieval + knowledge graph + critique loop, grounded to Northbound Gear's brand voice.</p>
+</header>
+<div id="status">loading ingestion status…</div>
+<main>
+  <div class="query-row">
+    <input id="q" type="text" placeholder="e.g. Write an Instagram caption for our new rain jacket" />
+    <button id="go">Ask</button>
+  </div>
+  <div id="loading">thinking… (draft → critique → refine, ~3 model calls)</div>
+  <div id="result"></div>
+</main>
+
+<script>
+const statusEl = document.getElementById('status');
+const resultEl = document.getElementById('result');
+const loadingEl = document.getElementById('loading');
+const qEl = document.getElementById('q');
+const goEl = document.getElementById('go');
+
+async function loadStatus() {
+  const r = await fetch('/api/status');
+  const d = await r.json();
+  statusEl.innerHTML =
+    `<span class="badge">${d.clean_chunks} clean chunks indexed</span>` +
+    `<span class="badge">${d.rules_count} rules in knowledge graph</span>` +
+    `<span class="badge" style="color:#ff9a9a;border-color:#5a2c2c">${d.quarantined.length} injection attempt(s) neutralized at ingestion</span>`;
+}
+loadStatus();
+
+function escapeHtml(s) {
+  return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+function highlightCitations(text) {
+  return escapeHtml(text).replace(/\[(chunk-\d+)\]/g, '<span class="cite">[$1]</span>');
+}
+
+async function ask() {
+  const query = qEl.value.trim();
+  if (!query) return;
+  goEl.disabled = true;
+  loadingEl.style.display = 'block';
+  resultEl.innerHTML = '';
+  try {
+    const r = await fetch('/api/query', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query})
+    });
+    const d = await r.json();
+    render(d);
+  } catch (e) {
+    resultEl.innerHTML = `<div class="card violations">Error: ${e}</div>`;
+  } finally {
+    goEl.disabled = false;
+    loadingEl.style.display = 'none';
+  }
+}
+
+function render(d) {
+  const passClass = d.passes ? 'pass' : 'fail';
+  let html = `<div class="card">
+    <div class="scores">
+      <div class="score">Confidence<b>${Math.round(d.confidence)}</b></div>
+      <div class="score">Citation accuracy<b>${Math.round(d.citation_accuracy)}</b></div>
+      <div class="score">Critic verdict<b class="${passClass}">${d.passes ? 'PASS' : 'FLAGGED'}</b></div>
+    </div>
+    <div class="answer">${highlightCitations(d.final_answer)}</div>
+    ${d.violations && d.violations.length ? `<div class="violations">Remaining flags: ${d.violations.map(escapeHtml).join('; ')}</div>` : ''}
+  </div>`;
+
+  html += `<details><summary>Thought process (${d.trace.length} steps)</summary>`;
+  for (const step of d.trace) {
+    if (step.step === 'retrieve') {
+      html += `<div class="trace-step"><span class="label">RETRIEVE</span>used ${step.chunks_used.join(', ')} + ${step.rules_used} graph rules</div>`;
+    } else if (step.step === 'draft') {
+      html += `<div class="trace-step"><span class="label">DRAFT</span><pre>${escapeHtml(step.text)}</pre></div>`;
+    } else if (step.step === 'critique') {
+      const r = step.result;
+      html += `<div class="trace-step"><span class="label">CRITIQUE #${step.attempt}</span>
+        <span class="${r.passes ? 'pass' : 'fail'}">${r.passes ? 'passed' : 'failed'}</span>
+        (confidence ${Math.round(r.confidence)}, citations ${Math.round(r.citation_accuracy)})
+        ${r.violations.length ? `<pre>${escapeHtml(r.violations.join('\n'))}</pre>` : ''}
+        </div>`;
+    } else if (step.step === 'refine') {
+      html += `<div class="trace-step"><span class="label">REFINE #${step.attempt}</span><pre>${escapeHtml(step.text)}</pre></div>`;
+    }
+  }
+  html += `</details>`;
+  resultEl.innerHTML = html;
+}
+
+goEl.addEventListener('click', ask);
+qEl.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+</script>
+</body>
+</html>
