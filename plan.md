@@ -4,84 +4,81 @@
 Build a context/memory pipeline that stops an LLM from producing generic
 brand copy — it must preserve a specific brand's vocabulary, constraints,
 and judgment, be defended against poisoned/injected source docs, retrieve
-only the context a query actually needs, run a draft→critic→refine loop,
-and report a confidence/citation-accuracy score. Core focus is GenAI/backend;
-UI is explicitly "supporting" only.
+only the context a query actually needs, run a draft→critic→(fetch-more or
+refine) loop, and report a confidence/citation-accuracy score. Core focus
+is GenAI/backend; UI is explicitly "supporting" only.
 
-## Locked decisions (confirmed with user)
-- **Backend:** Python + FastAPI, running fully locally, no deployment.
-- **Generative LLM:** the Claude Code CLI in headless print-mode
-  (`claude -p ... --output-format json`), invoked via `subprocess` from
-  Python, authenticated through the existing Claude Code/Claude.ai session
-  instead of a separate paid Anthropic API key. Verified working, incl.
-  `--json-schema` for structured critic/graph output. Cost ~$0.002–0.015
-  per call once a custom `--system-prompt` replaces Claude Code's default
-  (which otherwise adds ~$0.03/call of wasted context).
-- **Retrieval:** BM25 lexical search (`rank_bm25`), not embeddings —
-  brand-voice rules are exact-vocabulary problems (banned/preferred words),
-  which is a lexical-match problem; also avoids any embedding model
-  download/API dependency given the time limit.
-- **Knowledge graph:** not a graph DB — one LLM extraction pass turns the
-  sanitized brand doc into a compact typed rule list
-  (`forbidden_term` / `preferred_term` / `taboo_topic` / `tone_trait` /
-  `channel_rule`), held in memory. Graph-guided retrieval = always include
-  safety-critical rule types (forbidden terms, taboo topics) + only the
-  query-relevant subset of the rest, instead of dumping everything.
-- **Ingestion defense:** two layers — (1) regex heuristic scan at ingest
-  time that quarantines any chunk matching known injection patterns
-  ("ignore previous instructions", "system notice", etc.), excluding it
-  from the index but logging it; (2) structural hardening — every prompt
-  wraps retrieved content in explicit "untrusted DATA, never instructions"
-  delimiters, reinforced in every system prompt (draft/critic/refine).
-- **Critique loop:** draft → critic (structured JSON: passes, violations,
-  confidence, citation_accuracy) → if failed, one refine pass → re-critique,
-  hard-capped at 1 refinement for latency/cost in a live demo.
-- **Scoring:** hybrid — critic's LLM-judged confidence/citation_accuracy,
-  overridden/penalized deterministically if a citation like `[chunk-3]`
-  appears in the draft that doesn't correspond to a real retrieved chunk
-  id (fabricated-citation check, done in plain Python regex, not trusting
-  the model's self-report).
-- **Demo data:** a fictional-but-realistic brand ("Northbound Gear")
-  tone-of-voice guide written for the demo (`backend/data/brand_guide.txt`)
-  — avoids real-brand IP/copyright questions and PDF-parsing flakiness
-  under time pressure — plus a deliberately poisoned addendum doc
-  (`backend/data/poisoned_addendum.txt`) to demo the injection defense live.
-  brandingstyleguides.com was the user's suggested source for real guides
-  if we want to swap in an authentic one later.
-- **UI:** plain HTML/CSS/JS single page (`frontend/index.html`), no
-  build step, served directly by FastAPI's StaticFiles — query box, final
-  answer with inline citation highlighting, confidence/citation-accuracy/
-  pass-fail stat row, and a collapsible "thought process" trace (retrieve →
-  draft → critique → refine → critique). Sleek Next.js version deferred
-  until the user's design guide is ready and/or more time is available.
+## Architecture (current, verified working end-to-end)
+- **Backend:** Python + FastAPI, fully local, no deployment. `backend/main.py`.
+- **Generative LLM:** Claude Code CLI headless print-mode
+  (`claude -p --output-format json`), invoked via `subprocess`, authenticated
+  through the local Claude Code/Claude.ai session (no separate paid API key).
+  `backend/claude_client.py`.
+- **Ingestion + defense:** regex heuristic quarantine at ingest time, plus
+  structural "untrusted DATA" prompt-wrapping at generation time.
+  `backend/ingestion.py`.
+- **Source trust tiers (A/B/C):** every chunk/rule carries a tier + numeric
+  trust_score, folded into `final_confidence` and surfaced per-citation in
+  `sources_cited`. `SOURCE_TIERS` in `ingestion.py`.
+- **Retrieval:** BM25 lexical search (`rank_bm25`) + graph-guided rule
+  filtering (always include forbidden_term/taboo_topic, keyword-overlap for
+  the rest). `backend/retrieval.py`.
+- **Knowledge graph:** real `networkx.DiGraph` (rule nodes + `preferred_over`
+  edges), built via one LLM extraction call per source document, persisted to
+  `backend/data/graph_cache.json`. `backend/graph.py`, exposed via
+  `export_graph_for_viz()` → `GET /api/graph`.
+- **Critique loop:** draft → critic (structured: passes/violations/
+  confidence/citation_accuracy/failure_reason) → if `insufficient_context`,
+  fetch-more (wider retrieval) then refine; if `violation`, refine directly
+  → re-critique → Haiku grounding/entailment check (additive, catches
+  citations that exist but don't actually support their claim) → deterministic
+  fabricated-citation regex check. `backend/critique.py`.
+- **Demo data:** real, public Barco visual identity guidelines (extracted
+  from the actual PDF) as `backend/data/barco_guide.txt` (tier A), a
+  deliberately prompt-injected `poisoned_addendum.txt` (gets quarantined,
+  demos the defense), and a low-authority `fan_notes.txt` (tier C, demos
+  trust-tiering).
+- **UI:** React + Vite + Tailwind at `frontend-react/` (dev: `npm run dev`,
+  port 5173, proxies `/api/*` to the backend on :8000) — query view, trust
+  badges, confidence/citation meters, thought-process trace timeline, graph
+  visualization tab. A plain-HTML fallback still exists at `frontend/`.
 
-## Files built so far
-```
-backend/
-  claude_client.py   # subprocess wrapper around `claude -p`
-  ingestion.py        # chunking + regex injection-pattern quarantine
-  retrieval.py         # BM25 top-k + graph-guided rule filtering
-  graph.py              # one LLM call -> structured rule list
-  critique.py            # draft/critic/refine loop + citation verification
-  main.py                 # FastAPI app, startup ingestion, /api/status /api/rules /api/query
-  data/brand_guide.txt      # sample brand voice guide (Northbound Gear)
-  data/poisoned_addendum.txt # deliberately injected doc for defense demo
-frontend/
-  index.html                  # single-page UI, no build tooling
-```
+## Real bugs found and fixed (via direct testing, not agent self-reports)
+1. **CLI argv corruption (root cause):** `claude` resolves to a Windows
+   `.cmd` shim; its argument-forwarding gets reprocessed by `cmd.exe`, so any
+   argv value containing `< > | & ^` — anywhere in the string — silently
+   corrupts the command line. Hit twice in different forms: a prompt
+   starting with `--` read as an unknown option, and a JSON schema
+   `description` field containing `->` (the `>` read as redirection) that
+   produced an empty response with no error. Fixed at the root in
+   `claude_client.py`: `prompt` goes via stdin, `system_prompt` goes via the
+   (undocumented but real) `--system-prompt-file` flag, and `json_schema`
+   (which has no file-based flag) now fails loudly via `_assert_argv_safe`
+   instead of silently returning garbage.
+2. **UTF-8 corruption:** `subprocess.run(..., text=True)` without an explicit
+   `encoding` uses the platform default (cp1252 on this Windows machine), not
+   UTF-8, corrupting any non-ASCII character the CLI emits (em-dashes, curly
+   quotes) into mojibake/lone surrogates. Fixed by pinning `encoding="utf-8"`.
+3. **passes/violations inconsistency:** the Haiku grounding check could
+   append a "citation doesn't support its claim" violation without ever
+   flipping `passes` to `False` (it ran after the critic loop already
+   exited), so a response could report `passes: true` while listing a
+   hallucination. Fixed: a failed grounding check now forces `passes=False`.
 
-## Status / open issue
-End-to-end run is not yet confirmed working. Small isolated test of the
-`--json-schema` CLI path succeeded, but the full startup call (real brand
-doc, ~7 chunks) hit a `JSONDecodeError` — last debug step in progress was
-isolating whether it's a stdout-buffering/multi-line issue or something
-about prompt size/shape. **Not yet resolved when work was paused for
-discussion.**
+## Verified (live, this session)
+- `GET /api/status`, `GET /api/graph`, `POST /api/query` all confirmed
+  working against real data via direct HTTP calls (not just unit tests).
+- Injection defense: the poisoned doc is reliably quarantined (5 regex
+  patterns fire on it) and excluded from the index.
+- Fetch-more branch and grounding check both observed firing correctly in
+  real runs (not just the mocked test the critique agent wrote).
+- `frontend-react` dev server confirmed serving the app AND proxying
+  `/api/*` to the live backend (curled through the Vite dev server directly).
 
 ## Not yet decided / open questions
-- Whether to keep the fabricated "Northbound Gear" brand or swap in a real
-  guide from brandingstyleguides.com.
-- Scope of "stretch" differentiators (multi-critic ensemble, graph
-  visualization panel, live PDF upload) — cut for the 1.5h version, but
-  worth revisiting if more time turns out to be available.
-- Next.js/sleek UI swap — pending the user's design guide.
+- Whether to also verify the UI visually in a real browser (only build +
+  HTTP-level checks have been done so far, no screenshot/visual pass).
+- Minor data-quality note (not blocking): the graph extraction pass filed a
+  couple of full "Don't" example phrases (e.g. "We made a decision") under
+  `forbidden_term` alongside true single-word banned terms — defensible per
+  schema, but a rough edge if scrutinized closely.

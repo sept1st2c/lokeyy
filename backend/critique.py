@@ -287,6 +287,12 @@ def answer_query(query: str, retriever: Retriever, rules: list[dict]) -> dict:
             critique["citation_accuracy"] = round(
                 critique["citation_accuracy"] * (1 - 0.6 * penalty_fraction), 2
             )
+            # An unsupported citation is exactly the hallucination this whole
+            # loop exists to catch -- the response cannot be reported as
+            # "passes: true" while a violation naming a hallucinated citation
+            # sits in the same payload. This ran after the critic loop
+            # already exited, so it must override the critic's own verdict.
+            critique["passes"] = False
         trace.append({"step": "grounding_check", "result": grounding})
     else:
         trace.append({"step": "grounding_check", "result": "skipped"})
