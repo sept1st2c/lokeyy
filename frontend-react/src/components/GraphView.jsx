@@ -65,7 +65,7 @@ export default function GraphView() {
           let dx = a.x - b.x;
           let dy = a.y - b.y;
           let dist2 = dx * dx + dy * dy || 0.01;
-          const force = 2200 / dist2;
+          const force = 9000 / dist2;
           const dist = Math.sqrt(dist2);
           const fx = (dx / dist) * force;
           const fy = (dy / dist) * force;
@@ -129,7 +129,9 @@ export default function GraphView() {
         ctx.globalAlpha = 1;
         ctx.fillStyle = "#cbd5e1";
         ctx.font = "11px system-ui, sans-serif";
-        ctx.fillText(n.label ?? n.id, n.x + 12, n.y + 4);
+        const rawLabel = n.label ?? n.id;
+        const label = rawLabel.length > 22 ? rawLabel.slice(0, 22) + "…" : rawLabel;
+        ctx.fillText(label, n.x + 12, n.y + 4);
       }
 
       raf = requestAnimationFrame(tick);
@@ -163,7 +165,7 @@ export default function GraphView() {
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
-      <canvas ref={canvasRef} width={860} height={480} className="w-full h-auto" />
+      <canvas ref={canvasRef} width={1100} height={680} className="w-full h-auto" />
       <div className="flex flex-wrap gap-4 mt-2 px-2 text-xs text-slate-500">
         {Object.entries(TYPE_COLORS)
           .filter(([k]) => k !== "default")

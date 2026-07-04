@@ -7,3 +7,16 @@ INFO:     127.0.0.1:61811 - "GET /api/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:61812 - "GET /api/graph HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54141 - "POST /api/query HTTP/1.1" 200 OK
 INFO:     127.0.0.1:57058 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57545 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57546 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56132 - "POST /api/query HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61212 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61213 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "POST /api/query HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52630 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52728 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52225 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61854 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61855 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61856 - "GET /api/graph HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61857 - "GET /api/graph HTTP/1.1" 200 OK
