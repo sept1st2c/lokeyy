@@ -215,11 +215,18 @@ in the presentation as "we tested rigorously," since it's true.
 ## 9. The frontend (what the judge actually sees and clicks)
 
 Built with **React** (a UI framework), **Vite** (the tool that runs/builds
-it), and **Tailwind CSS** (a styling toolkit) — a dark, modern single page:
+it), and **Tailwind CSS** (a styling toolkit) — styled after xAI's design
+language (near-black canvas, white pill buttons, hairline borders, no
+shadows, restrained accent colors) so it reads as a real product, not a
+hackathon demo:
 
-- A chat-style box to type a question and see the answer, with citations
-  shown as small colored badges (green/amber/gray = trust tier of the
-  source).
+- A **landing page** first — hero headline, live stats pulled straight from
+  the running backend (not hardcoded numbers), an architecture walkthrough
+  section, a "what makes this different" section, and a "Launch the demo"
+  button that drops into the actual app.
+- Inside the app: a chat-style box to type a question and see the answer,
+  with citations shown as small colored badges (green/amber/gray = trust
+  tier of the source).
 - A **Confidence / Citation Accuracy / Pass-Fail** row right under every
   answer.
 - An expandable **"Thought Process"** panel showing the exact steps from
@@ -228,9 +235,15 @@ it), and **Tailwind CSS** (a styling toolkit) — a dark, modern single page:
   thing to show a judge, since it visibly proves the loop is real, not just
   one AI call dressed up.
 - A status strip that visibly says **"1 injection attempt neutralized"** —
-  the live proof the defense mechanism works.
+  the live proof the defense mechanism works, plus a "Brand sources" row
+  showing which documents are actually loaded (with a working "Upload PDF"
+  control that honestly tells you upload isn't wired up yet, instead of
+  silently failing).
 - A **Knowledge Graph** tab visualizing the rulebook from Stage ② as an
-  actual node-and-line diagram.
+  actual node-and-line diagram — only rules with a real stated relationship
+  to another rule get a text label (the rest render as small dots), so the
+  ~15 genuinely interesting relationships stay legible instead of getting
+  buried under ~50 disconnected rule nodes.
 
 It runs as its own small local web server (`npm run dev`) and talks to the
 Python backend over the network on your own machine — nothing is deployed to
@@ -284,13 +297,199 @@ except the already-logged-in Claude Code session.
 
 ## 12. Honest limitations (know these before a judge asks)
 
-- The graph visualization can still look a little crowded with unconnected
-  nodes at the edges — it's a stretch/cosmetic feature, not core-graded.
-- No automated test suite — verification so far has been direct, manual,
-  end-to-end runs (which is arguably *more* convincing for a live demo, but
-  say "manually verified" not "unit tested").
-- PDF parsing itself isn't live in the running app — the brand text was
-  extracted from the real PDF once, ahead of time, into plain text files.
-  If asked "does it parse any PDF," the honest answer is "the ingestion
-  pipeline works on brand text; PDF-to-text extraction was a one-time prep
-  step for this demo, not a live upload feature yet."
+- **PDF parsing isn't live.** The brand text was extracted from the real PDF
+  once, ahead of time, into plain text files. If asked "does it parse any
+  PDF," the honest answer is "the ingestion pipeline works on brand text;
+  PDF-to-text extraction was a one-time prep step for this demo, not a live
+  upload feature yet" — the UI is honest about this too (the Upload PDF
+  button tells you so instead of silently failing).
+- **Single brand, hardcoded.** There's no "switch brand" selector — Barco is
+  the only loaded brand. Multi-brand support (separate index + graph per
+  brand) is architecturally straightforward to add but wasn't built.
+- **No automated test suite.** Verification so far has been direct, manual,
+  end-to-end runs against the real backend (arguably *more* convincing for a
+  live demo than a green checkmark, but say "manually verified end-to-end,"
+  not "unit tested").
+- **Lexical retrieval can miss paraphrases.** BM25 matches exact/overlapping
+  words. A question phrased in words that don't appear anywhere in the guide
+  (e.g. "make it pop" when the guide never uses that phrase) may retrieve
+  weaker chunks than a meaning-based search would. This is a deliberate
+  trade-off (see §17), not an oversight — but it is a real limitation for
+  loosely-phrased questions.
+- **Latency.** A query that triggers the fetch-more branch runs 5+ sequential
+  model calls and can take 30–45 seconds. Fine for a demo, not fast enough
+  for a snappy production product without streaming (see §13).
+- **No conversation memory.** Every question is answered from scratch; there's
+  no "make it shorter" follow-up that remembers the previous answer.
+- **Single point of failure on auth.** The system calls Claude through the
+  Claude Code CLI's session on this machine — no separate paid API key as a
+  fallback. If that session logs out, generation stops. Fine for a local demo,
+  not something you'd ship a real product on as-is.
+- **The critic and grounding check are themselves LLM judgment calls.** They're
+  backed by a deterministic check for the one failure mode that's fully
+  checkable in code (does a cited chunk id actually exist), but "is this
+  citation's *meaning* actually supported" and "does this violate a tone
+  rule" are still AI judgment, not provably infallible — they can occasionally
+  be wrong, same as any critic-model pattern.
+
+---
+
+## 13. If we had more time — how we'd actually improve the architecture
+
+These aren't vague "future work" bullet points — each one addresses a
+limitation from §12 with a specific, buildable next step:
+
+1. **Hybrid retrieval (lexical + embeddings).** Keep BM25 + the graph for the
+   exact-compliance layer (§17 explains why that stays), but add an embedding
+   index alongside it purely for *recall* — so a loosely-phrased question that
+   shares no exact words with the guide still finds the right chunk. Rerank
+   the merged candidate set before it reaches the critic. This is the single
+   highest-value upgrade and directly fixes the "misses paraphrases"
+   limitation.
+2. **Deeper graph relationships.** Right now the graph is mostly one relation
+   type (`preferred_over`). A richer schema — `conflicts_with` between a tone
+   rule and a channel rule, `applies_to_channel` edges — would let the critic
+   actually *traverse* the graph for a query instead of reading a flat
+   pre-filtered list, and would make the visualization meaningfully more
+   interesting to look at.
+3. **Streaming responses (SSE/WebSockets).** Right now the whole 5-step loop
+   runs before the UI shows anything but a spinner. Streaming each trace step
+   as it completes would make the "thought process" feel alive in real time
+   instead of arriving all at once — a genuinely better demo *and* a better
+   product.
+4. **Real PDF upload.** Swap the one-time manual extraction for a live
+   pipeline (PyMuPDF for text-native PDFs, OCR fallback for scanned ones,
+   layout-aware chunking that respects headings/tables) behind the "Upload
+   PDF" button that currently (honestly) says it isn't wired up.
+5. **Multi-brand switching.** Key the retriever/graph/state by brand instead
+   of a single global `STATE` dict, add a brand selector to the UI.
+6. **Human-in-the-loop rule curation.** The one-shot LLM extraction pass is
+   good but not perfect — we caught it filing a couple of full "don't say
+   this" example sentences under `forbidden_term` alongside genuine
+   single-word banned terms. A review UI where a brand manager approves/edits
+   extracted rules before they go live would catch that class of error.
+7. **A real test suite** covering ingestion edge cases (empty docs, huge
+   docs), retrieval ranking, and the critic loop's branching logic with
+   mocked model responses — turning today's "we tested it manually and it
+   worked" into "CI enforces it keeps working."
+8. **A fallback inference path** (a real paid API key as backup) so the
+   system isn't tied to one person's local login session.
+
+---
+
+## 14. Does this actually answer the problem statement? A self-assessment
+
+Going requirement by requirement, honestly:
+
+| Requirement | Verdict | Why |
+|---|---|---|
+| **1. Resourceful Ingestion + defense** | Strong match | Real, publicly-sourced brand PDF (not synthetic filler text); the injection defense isn't just described, it's *demoable* — a real poisoned document gets caught live, every time, on request. |
+| **2. Context Engineering** | Strong match | Retrieval is deliberately *not* the default "throw embeddings at it" choice — BM25 + graph-guided filtering was chosen because it's the more correct tool for exact-vocabulary rules, and that reasoning is defensible under questioning (§17), not just "it was faster to build." |
+| **3. Critique & Loop Engine** | Strongest match | This is where a lot of hackathon submissions would fake it — one critic call, always "refine," call it a loop. We implemented the literal branch the brief describes: a rule violation refines with the *same* context; missing information triggers an actual wider re-retrieval *first*. That distinction is visibly demoable, not just claimed. |
+| **4. Harness Engineering** | Strong match | Not one self-reported number — three layers: a deterministic check (does the cited id exist), an independent second-model check (does the citation's content actually support the claim), and a trust-tier-weighted confidence score. |
+
+**Bottom line:** yes, this is a legitimate, directly-mapped, testable answer
+to all four core requirements — every one of them was verified working
+end-to-end against real data and real model calls this session, not assumed.
+The honest caveat is §12's limitations: this is a working prototype that
+does what's asked, not a hardened production system.
+
+---
+
+## 15. What's actually unique here (not just "we used AI")
+
+If a judge asks "what would I *not* see in five other teams' submissions,"
+these are the real, specific answers:
+
+- **The failure-mode branch is real, not decorative.** "You broke a rule"
+  and "there isn't enough information" get genuinely different treatment
+  (refine vs. fetch-more-then-refine) — most "iterative loop" demos collapse
+  both into one generic retry.
+- **A second, independent, cheaper model checks the first model's citations
+  for meaning, not just existence.** Catching "this citation is real but
+  doesn't actually say what you claim" is a subtler bug class than the
+  fabricated-id check almost every RAG demo has.
+- **Trust tiers flow all the way through, not just into a tooltip.** A
+  low-authority source actually drags down the final confidence number and
+  shows up as a differently-colored badge — the system is calibrated to
+  trust sources differently, not just cite them all identically.
+- **The knowledge graph is a real, persisted, visualized graph**, built with
+  `networkx`, not a marketing label on top of a vector store (see §16 for a
+  concrete example of it actually mattering, not just looking good).
+- **The injection defense has a live "gotcha" built in.** A genuinely
+  poisoned test document ships with the demo specifically so the catch can
+  be shown happening, not described in a slide.
+- **Transparency about real bugs, found by testing, not assumed away.** Three
+  actual bugs (a Windows CLI-argument corruption bug, a UTF-8 encoding bug, a
+  pass/fail logic bug) were found by running the system end-to-end and
+  reading real output — and are documented here rather than hidden. That's a
+  rigor signal most demos don't bother showing.
+- **The inference engine is Claude Code's own headless mode**, not a separate
+  paid API key — a genuinely clever, zero-marginal-cost way to run a
+  hackathon-grade LLM pipeline without a billing setup, and it's a legitimate
+  documented feature, not a workaround.
+
+---
+
+## 16. The knowledge graph, earning its keep — a concrete example
+
+Here's the question worth asking: *"I already have keyword search over the
+chunks — what does the graph add that keyword search alone wouldn't?"*
+
+**The answer, concretely:** in `retrieval.py`, every `forbidden_term` and
+`taboo_topic` node is pulled into *every single query's context,
+unconditionally* — regardless of whether the question's wording overlaps
+with that rule at all. Compare the two systems:
+
+- **Keyword search alone:** ask *"Write a tagline for our new projector"* —
+  BM25 finds chunks about taglines/projectors. If the sentence describing
+  "never write BARCO in full capital letters" happens to live in a chunk
+  that shares no words with "tagline" or "projector," keyword search may
+  never surface it. The model could easily write `BARCO` in caps and nobody
+  checked.
+- **With the graph:** the `BARCO (all caps)` → `Barco` rule node is in the
+  *always-include* set, full stop — it doesn't matter what the question was
+  about. The critic checks it every time.
+
+The graph also gives the **refine** step something keyword search can't: a
+direct, structured lookup for the fix. When the critic flags "you used
+'colour'," the refiner doesn't have to re-read a paragraph and *infer* the
+correct replacement — the graph has a `preferred_over` edge straight from
+the `colour` node to the `color` node. Multiple wrong forms (`BARCO`,
+`Barco` in full caps, `BARCO` with no space) can all point at the one right
+answer, which a single text search would represent as scattered prose, not
+a lookup.
+
+**In one sentence:** keyword search finds *relevant* text; the graph
+guarantees *mandatory* rules are never skipped and gives corrections a
+structured answer instead of a re-derived guess.
+
+---
+
+## 17. When would you actually want this kind of retrieval vs. standard RAG?
+
+"Standard" modern RAG converts everything to embeddings and does
+meaning-based similarity search. We used BM25 (keyword) + a graph instead.
+Neither is "the right one" universally — they fit different problems:
+
+**Use lexical + graph (what we built) when the domain is fundamentally about
+enforcing exact vocabulary or compliance rules** — brand style guides, legal/
+compliance language, restricted terminology lists, code style guides. In
+these domains, a rule like "never say X, always say Y" is about the literal
+word, and a semantic search that treats "seamless" and "smooth" as
+basically-the-same-meaning is actively counterproductive — it can blur past
+the exact word you needed to catch.
+
+**Use embedding-based RAG when the domain is about factual retrieval over
+large, prose-heavy corpora where the user's question is phrased differently
+than the source material** — customer support over a big product manual,
+semantic search across research papers, Q&A over long policy documents.
+There, meaning-matching across paraphrases is the entire point, and exact
+keyword overlap would miss too much.
+
+**The honest, complete answer for a real product** is usually *both*
+(hybrid) — which is exactly §13's top improvement: embeddings for
+large-scale "which section is even relevant," lexical + graph for the
+exact-compliance layer on top. We built the second half first because it's
+the part that's specific and defensible for *this* problem, not because the
+first half doesn't matter.
