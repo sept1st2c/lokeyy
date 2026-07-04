@@ -23,8 +23,13 @@ def call_claude(
     model: str = "sonnet",
     timeout: int = 60,
 ) -> str | dict:
+    # Prompt is piped via stdin rather than passed as a CLI argument: the
+    # `claude` command is a Windows .cmd shim, and its argument-forwarding
+    # re-tokenizes on whitespace, which mangles/breaks any long or
+    # punctuation-heavy prompt passed positionally (e.g. one starting with
+    # "--" gets misread as an unknown option). Stdin bypasses that entirely.
     cmd = [
-        CLAUDE_BIN, "-p", prompt,
+        CLAUDE_BIN, "-p",
         "--output-format", "json",
         "--no-session-persistence",
         "--tools", "",
@@ -34,7 +39,7 @@ def call_claude(
     if json_schema is not None:
         cmd += ["--json-schema", json.dumps(json_schema)]
 
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=timeout)
 
     if not proc.stdout.strip():
         raise ClaudeCallError(f"Empty response from claude CLI. stderr: {proc.stderr}")

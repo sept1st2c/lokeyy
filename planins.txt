@@ -1,0 +1,156 @@
+# The Cognition & Brand Memory Engine — Vision
+
+## 1. Problem Statement (verbatim context)
+
+**Core Focus:** GenAI & Backend Engineering | **Supporting Focus:** Minimal Presentation UI
+
+### The Mission
+General-purpose LLMs drift toward generic answers. Great brands cannot. The challenge is to
+build a **context and memory pipeline** that preserves a brand's specific vocabulary,
+constraints, and judgment.
+
+### Core Technical Requirements
+1. **Resourceful Ingestion** — Source our own dataset (real-world brand guidelines, technical
+   documentation, tone-of-voice PDFs). Ingest these documents and implement a **defensive
+   mechanism to sanitize input against context poisoning or malicious prompt injections**.
+2. **Context Engineering** — Build a retrieval system that extracts **only the specific
+   context needed** for a user query, avoiding excessive token bloat.
+3. **The Critique & Loop Engine** — Implement an iterative execution loop. When a query is
+   made, the system must draft a response, run an internal **"critic" prompt** to check if the
+   response violates any sourced brand guidelines or hallucinates facts, and **fetch more data
+   or refine** the answer if necessary before completing.
+4. **Harness Engineering** — Output a **quantitative or qualitative score** showing the
+   engine's confidence and citation accuracy for the final response.
+
+### Supporting UI Requirement
+A simple, lightweight UI strictly for presentation. An evaluator should be able to type a query
+and clearly see:
+- The final output with accurate citations.
+- A visual look into the **"Thought Process"** showing intermediate steps of the critique loop
+  (e.g., *"Draft 1 failed guideline X → Re-evaluating → Final Answer"*).
+
+### How we read the brief (differentiation)
+The judges reward four distinct engineering muscles, not just "a RAG chatbot." Easy to build a
+decent RAG bot and under-deliver on the parts that differentiate: **(1)** the injection defense,
+**(3)** a *real* multi-step loop (not one critic call), and **(4)** a *real* measured score (not
+a made-up number). The **visible loop trace** is the demo's money shot.
+
+---
+
+## 2. Locked Decisions
+
+| Area | Decision |
+|---|---|
+| Stack | Python (FastAPI + SSE) backend + **minimal React** (Vite + Tailwind) presentation UI |
+| Corpus | **Multi-brand**, with per-source **trust grading** (A/B/C tiers) |
+| Loop | **Self-RAG**: refine **+ fetch-more**; plus gated **clarifying cross-questions**; multi-turn chat afterward |
+| Retrieval | **Hybrid** — local vector store (Chroma, `bge-small` embeddings) + **in-memory NetworkX** knowledge graph, **guided/entity-anchored** traversal |
+| Source trust | **Manual tiering at ingest** (we control the corpus) |
+| Follow-ups | **Adaptive** — full loop for content requests, light path for meta questions |
+| UI scope | Chat + expandable thought-process/citations panel **+ live graph visualization** |
+
+### Defaults (not separately debated)
+- PDF parse: PyMuPDF + heading-aware chunking.
+- Models: **Sonnet** for draft/critic/refine; **Haiku** for clarifier + citation-grounding checks.
+- Injection defense: ingestion-time scanner (regex + Haiku classifier → flag/**quarantine**) +
+  prompt-time spotlighting/datamarking. One poisoned doc seeded to demo the catch live.
+
+---
+
+## 3. Source-Trust Grading (cross-cutting)
+
+Every source gets a trust tier at ingest; every chunk **and** graph node inherits it.
+
+| Tier | Meaning | Trust |
+|---|---|---|
+| **A** | Official brand docs (brand guidelines, official style guide) | ~0.9–1.0 |
+| **B** | Official-adjacent (company blog, press) | ~0.6–0.8 |
+| **C** | Third-party / random articles | ~0.2–0.5 |
+
+Flows through the system:
+- **Retrieval** weights by trust — a Tier-A passage beats a marginally-more-similar Tier-C one.
+- **Critic** annotates which source backed each claim and flags claims resting *only* on
+  low-trust sources ("this rests on a third-party article — treat with caution").
+- **Confidence** score includes the weighted trust of the citations actually used.
+- **UI** shows per-citation trust badges (A/B/C, color-coded).
+
+---
+
+## 4. Knowledge Graph (hybrid, not full GraphRAG)
+
+Schema-light property graph alongside the vector store. Full Microsoft-style GraphRAG indexing
+is too slow/costly for a hackathon; the light graph gives the wins without the cost.
+
+- **Schema:** `Brand → Guideline → Rule / BannedTerm / Term-Definition`, plus
+  `Source{trust} → SUPPORTS → Claim`.
+- **Why it earns its place:** (a) gives the critic **structured, deterministic** guideline nodes
+  to check a draft against; (b) natively holds **provenance/trust** relationships;
+  (c) is **visualizable** — the "cognition/memory" money-shot in the UI.
+- **Traversal:** guided/entity-anchored — LLM extracts entities/intent from the query, then
+  deterministic multi-hop expansion. The self-RAG "fetch-more" step is a graph neighbor expand.
+
+---
+
+## 5. Session Lifecycle (brand mode)
+
+1. **Pick a brand** → loads persona + guideline graph.
+2. **Enter a query** → gated **clarifier** decides if 1–2 cross-questions are warranted.
+3. **Self-RAG critique loop**: Draft → Critic → (Refine | Fetch-more) → Final (N ≤ 3).
+4. **Return**: final answer + inline citations (trust badges) + confidence + citation-accuracy
+   + thought-process trace.
+5. **Keep chatting** — follow-ups retain brand memory, cached context, prior answer (adaptive).
+
+---
+
+## 6. Component Map (→ requirements)
+
+**Backend — Python / FastAPI + SSE**
+
+| Component | What it does | Req |
+|---|---|---|
+| Source registry | Config: each source → `{brand, path/url, tier}` | 1 |
+| Ingestion pipeline | PyMuPDF → heading chunk → embed (`bge-small`) → Chroma; chunks carry `source + trust` | 1 |
+| Injection scanner | Regex + Haiku classifier → flag/quarantine + report; 1 poisoned doc seeded | 1 |
+| Graph builder | LLM extraction over Tier-A/B → NetworkX graph, persisted JSON | 2 |
+| Hybrid retriever | Entity-anchor → graph multi-hop + Chroma → merge → trust-weighted rerank → compress | 2 |
+| Clarifier (Haiku) | Gated: 0–2 cross-questions or "proceed" | flow |
+| Critique loop | draft → critic(structured verdict) → fetch-more/refine → repeat; streams steps | 3 |
+| Harness/scoring | Citation accuracy (Haiku entailment) + composite confidence (incl. source trust) | 4 |
+| Session memory | In-memory per session; adaptive follow-up routing | flow |
+
+**Frontend — minimal React (Vite + Tailwind)**
+- Brand selector → streamed chat window.
+- Per-message expandable **thought-process trace**: Draft 1 → critic verdict badges → fetch/refine → Final.
+- Citations list with **A/B/C trust badges** + confidence & citation-accuracy meters.
+- **Graph tab**: force-directed view highlighting nodes/sources feeding the latest answer.
+
+---
+
+## 7. Build Order (phased)
+
+0. Scaffold repo, keys, source registry.
+1. Ingestion + injection scanner + Chroma + graph build (+ poisoned doc).
+2. Hybrid retrieval + trust weighting.
+3. Critique loop + clarifier + scoring over SSE.
+4. React chat UI (trace + citations).
+5. Graph viz + polish + rehearse the injection-catch demo.
+
+**Risk callouts:** graph-extraction pass is the fiddliest — keep schema tight, corpus small
+(2–3 brands, few docs each). Time-box loop to N=2–3. Keep node count modest for a readable viz.
+
+---
+
+## 8. Candidate Corpus (proposed)
+
+Mixed tiers so trust-grading has something to show:
+- **Mailchimp** — Content Style Guide (A) + third-party "Mailchimp voice" articles (C).
+- **Netflix / Spotify** — brand guidelines PDF (A) + company blog (B) + opinion article (C).
+- *(optional 3rd)* **Notion / Duolingo** — distinctive voice, good persona contrast.
+
+Source under evaluation: **https://brandingstyleguides.com/** (see extraction notes below).
+
+---
+
+## 9. Source Vetting — brandingstyleguides.com
+
+_(to be filled in after review)_

@@ -1,0 +1,1031 @@
+{
+  "rules": [
+    {
+      "type": "channel_rule",
+      "value": "Company and products are consistently referred to as 'Barco' under the master brand approach; no sub-branding or product logos.",
+      "note": "Brand architecture is based on customer impact, not company structure.",
+      "id": "rule-0",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "preferred_term",
+      "value": "Barco",
+      "note": "Use Barco as often as possible instead of division or legal entity names, in both external and internal communication.",
+      "related_term": "division/legal entity name",
+      "id": "rule-1",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Use the legal entity name only in materials/documents with legal implications (e.g., address fields on invoices, letters, business cards).",
+      "note": "Applies to stationery and legally binding documents.",
+      "id": "rule-2",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Division, business unit, or location names can only be used combined with the Barco name, and only when the organizational structure matters.",
+      "note": "Applies to both external and internal communication.",
+      "id": "rule-3",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "In external communication materials like brochures, ads, newsletters, magazines, refer simply to 'Barco' without division, market, or location, e.g. 'Barco introduces new LED display.'",
+      "note": "Division references reserved for specific communications like investor/analyst/press materials.",
+      "id": "rule-4",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "When referencing a division/business unit/location/facility, always add the qualifying word ('division,' 'business unit,' 'location,' or 'facility') to clarify relationship to Barco.",
+      "note": "e.g. 'President of Barco's Entertainment division.'",
+      "id": "rule-5",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "preferred_term",
+      "value": "Visioneering a bright tomorrow",
+      "note": "Brand mantra used when communicating about Barco overall.",
+      "id": "rule-6",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "preferred_term",
+      "value": "Visioneering Healthcare, Visioneering Enterprise, Visioneering Entertainment",
+      "note": "Terms used when referring to Barco's markets/segments.",
+      "id": "rule-7",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Inspirational 'What if' or 'Imagine' statements",
+      "note": "Used when talking about segments, e.g. 'What if meetings could be truly inclusive?', 'Imagine diagnosing patients before they get sick.'",
+      "id": "rule-8",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Natural, everyday-speech writing style",
+      "note": "Barco's writing style is based on natural, conversational language.",
+      "id": "rule-9",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "taboo_topic",
+      "value": "Fancy oratorical touches, bureaucratic phrases, or explicit commercial wording",
+      "note": "These are explicitly excluded from Barco's writing style.",
+      "id": "rule-10",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Write from an outcomes point of view",
+      "note": "Always find the outcome for the customer that will draw attention.",
+      "id": "rule-11",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Warm, open, personal tone using first- and second-person address ('we'/'you')",
+      "note": "Readers should feel personally addressed rather than spoken about impersonally.",
+      "id": "rule-12",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "Barco / the customer (impersonal third-person reference)",
+      "note": "Avoid referring to company or reader in impersonal third person when a personal alternative is natural.",
+      "related_term": "we / you",
+      "id": "rule-13",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "colour",
+      "note": "British spelling forbidden in favor of American English per Cambridge Dictionary standard.",
+      "related_term": "color",
+      "id": "rule-14",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "grey",
+      "note": "British spelling forbidden in favor of American English.",
+      "related_term": "gray",
+      "id": "rule-15",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "visualisation",
+      "note": "British spelling forbidden in favor of American English.",
+      "related_term": "visualization",
+      "id": "rule-16",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "centre",
+      "note": "British spelling forbidden in favor of American English.",
+      "related_term": "center",
+      "id": "rule-17",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "programme",
+      "note": "British spelling forbidden in favor of American English.",
+      "related_term": "program",
+      "id": "rule-18",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Prefer active voice over passive voice",
+      "note": "e.g. 'A buys B' rather than 'B is bought by A.'",
+      "id": "rule-19",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "taboo_topic",
+      "value": "Jargon in writing for a wide audience",
+      "note": "Avoid technical jargon in press releases, company introductions, market brochures; explain jargon on first use if necessary; technical terms acceptable only for specialist audiences.",
+      "id": "rule-20",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Short, frequently used words and simple sentence constructions",
+      "note": "Important since much of the audience is non-native English speakers; avoid long paragraphs.",
+      "id": "rule-21",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Maximum sentence length of 25 words",
+      "note": "Aim for concise sentences.",
+      "id": "rule-22",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "preferred_term",
+      "value": "We decided / I intend",
+      "note": "Simpler phrasing preferred over wordier constructions.",
+      "related_term": "We made a decision / I have the intention",
+      "id": "rule-23",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Abbreviations written in full on first appearance with abbreviation in brackets, unless the abbreviation is more common than the full form.",
+      "note": "Applies to non-acronym abbreviations.",
+      "id": "rule-24",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Acronyms formed from first letters are written in all capitals (e.g. NATO).",
+      "note": "Distinguished from pronounceable word-abbreviations.",
+      "id": "rule-25",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Abbreviations composed of word parts that can be pronounced as words are written as plain text (e.g. Unicef).",
+      "note": "Not written in all caps.",
+      "id": "rule-26",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Numerals one to ten spelled in words except for page references and percentages; numerals 11 and above, decimals, and fractions written in figures.",
+      "note": "e.g. 'Two contracts,' 'Page 3,' '8%,' '24 displays.'",
+      "id": "rule-27",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Phone and fax numbers written as +country code, area code, number (e.g. +32 56 123 456).",
+      "note": "Do not use format like '0032 56 123 456.'",
+      "id": "rule-28",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Dates written consistently as day/month/year (e.g. '3 June 2004' or 'June 3, 2003').",
+      "note": "Avoid ordinal suffixes like '3rd June 2003.'",
+      "id": "rule-29",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "In running text, place currency symbol before the figure with no space; 'million' can be abbreviated to 'm'; 'billion' always spelled out. If currency symbol omitted, currency word follows the figure.",
+      "note": "e.g. currency-250 million, currency-250m, currency-32 billion, 32 billion euro.",
+      "id": "rule-30",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Headlines should be active, present tense, and short (preferably no more than two lines).",
+      "note": "Applies to titles and headlines.",
+      "id": "rule-31",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Titles in brochures and communication tools use initial cap only for the first word of the title.",
+      "note": "Standard spelling rules for titles.",
+      "id": "rule-32",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Barco is always written in lower case with a capital B; never in full caps.",
+      "note": "Applies to all uses including copyright notices.",
+      "id": "rule-33",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "forbidden_term",
+      "value": "BARCO (full caps)",
+      "note": "Avoid writing Barco in all capital letters.",
+      "related_term": "Barco",
+      "id": "rule-34",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "'Visioneering a bright tomorrow' is written in lower case with a capital V.",
+      "note": "Consistent capitalization rule for the brand mantra.",
+      "id": "rule-35",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Copyright notices contain the copyright symbol, year of first publication, and owner, e.g. '(c) 2023, Barco.'",
+      "note": "Barco remains lower case with capital B in copyright notices.",
+      "id": "rule-36",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Product naming offers three possibilities: fully descriptive name, compound word highlighting USPs, or product code.",
+      "note": "e.g. Barco Canvas, ClickShare, Barco UniSee.",
+      "id": "rule-37",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Precede product names with 'Barco' to gain basic name protection and reinforce brand association.",
+      "note": "Reinforces position as a Barco product in the market.",
+      "id": "rule-38",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "channel_rule",
+      "value": "Barco is a branded house; only the Barco name and logo are trademarked. Product/service names use descriptive (compound) names or product codes, not registered as trademarks except in exceptional cases.",
+      "note": "Exceptions include crown jewel products, competitive necessity, new market entries, or inherited trademarks from acquisitions (e.g. UniSee, Demetra, Nexxis, Eonis, ClickShare, wePresent).",
+      "id": "rule-39",
+      "source": "barco_guide.txt",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "type": "tone_trait",
+      "value": "Confident and future-facing",
+      "note": "Barco's marketing comes across as confident and future-facing, per fan observation of their messaging and press releases.",
+      "id": "rule-40",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "tone_trait",
+      "value": "Inspirational, almost sci-fi, using big 'what if' style questions",
+      "note": "Brand frequently poses aspirational 'what if' questions (e.g., 'what if surgery could happen from anywhere'), giving an inspirational, slightly sci-fi tone.",
+      "id": "rule-41",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "preferred_term",
+      "value": "visioneering",
+      "note": "Barco uses this coined term (a mashup of 'vision' + 'engineering') in its marketing language.",
+      "id": "rule-42",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "preferred_term",
+      "value": "Barco",
+      "related_term": "long corporate division names",
+      "note": "Brand refers to itself simply as 'Barco' rather than using long corporate-speak division names, except in investor-relations documents; reflects a 'one brand' approach rather than house-of-brands.",
+      "id": "rule-43",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "tone_trait",
+      "value": "Plain, matter-of-fact writing with short sentences, not flowery",
+      "note": "Observed writing style avoids flowery language and uses short, matter-of-fact sentences.",
+      "id": "rule-44",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "tone_trait",
+      "value": "Not jargon-heavy even for technical products",
+      "note": "Even when discussing technical products like projectors and LED walls, the writing avoids heavy jargon.",
+      "id": "rule-45",
+      "source": "fan_notes.txt",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "type": "tone_trait",
+      "value": "inspirational",
+      "note": "Autumn campaign copy can lean slightly more inspirational, as long as it still follows the standard tone-of-voice rules.",
+      "id": "rule-46",
+      "source": "poisoned_addendum.txt",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "type": "preferred_term",
+      "value": "What if\" framing",
+      "note": "Suggested inspirational framing device for autumn campaign messaging.",
+      "id": "rule-47",
+      "source": "poisoned_addendum.txt",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "type": "preferred_term",
+      "value": "Visioneering",
+      "note": "Suggested inspirational language for autumn campaign messaging.",
+      "id": "rule-48",
+      "source": "poisoned_addendum.txt",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "type": "preferred_term",
+      "value": "Barco",
+      "note": "Use with a capital B and rest lower case; never use full caps, per capitalization rule in main guide.",
+      "id": "rule-49",
+      "source": "poisoned_addendum.txt",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "type": "forbidden_term",
+      "value": "BARCO",
+      "related_term": "Barco",
+      "note": "Full caps version of the brand name should never be used, per capitalization rule.",
+      "id": "rule-50",
+      "source": "poisoned_addendum.txt",
+      "tier": "B",
+      "trust_score": 0.7
+    }
+  ],
+  "nodes": [
+    {
+      "id": "rule-0",
+      "type": "channel_rule",
+      "value": "Company and products are consistently referred to as 'Barco' under the master brand approach; no sub-branding or product logos.",
+      "note": "Brand architecture is based on customer impact, not company structure.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-1",
+      "type": "preferred_term",
+      "value": "Barco",
+      "note": "Use Barco as often as possible instead of division or legal entity names, in both external and internal communication.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-2",
+      "type": "channel_rule",
+      "value": "Use the legal entity name only in materials/documents with legal implications (e.g., address fields on invoices, letters, business cards).",
+      "note": "Applies to stationery and legally binding documents.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-3",
+      "type": "channel_rule",
+      "value": "Division, business unit, or location names can only be used combined with the Barco name, and only when the organizational structure matters.",
+      "note": "Applies to both external and internal communication.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-4",
+      "type": "channel_rule",
+      "value": "In external communication materials like brochures, ads, newsletters, magazines, refer simply to 'Barco' without division, market, or location, e.g. 'Barco introduces new LED display.'",
+      "note": "Division references reserved for specific communications like investor/analyst/press materials.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-5",
+      "type": "channel_rule",
+      "value": "When referencing a division/business unit/location/facility, always add the qualifying word ('division,' 'business unit,' 'location,' or 'facility') to clarify relationship to Barco.",
+      "note": "e.g. 'President of Barco's Entertainment division.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-6",
+      "type": "preferred_term",
+      "value": "Visioneering a bright tomorrow",
+      "note": "Brand mantra used when communicating about Barco overall.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-7",
+      "type": "preferred_term",
+      "value": "Visioneering Healthcare, Visioneering Enterprise, Visioneering Entertainment",
+      "note": "Terms used when referring to Barco's markets/segments.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-8",
+      "type": "tone_trait",
+      "value": "Inspirational 'What if' or 'Imagine' statements",
+      "note": "Used when talking about segments, e.g. 'What if meetings could be truly inclusive?', 'Imagine diagnosing patients before they get sick.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-9",
+      "type": "tone_trait",
+      "value": "Natural, everyday-speech writing style",
+      "note": "Barco's writing style is based on natural, conversational language.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-10",
+      "type": "taboo_topic",
+      "value": "Fancy oratorical touches, bureaucratic phrases, or explicit commercial wording",
+      "note": "These are explicitly excluded from Barco's writing style.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-11",
+      "type": "tone_trait",
+      "value": "Write from an outcomes point of view",
+      "note": "Always find the outcome for the customer that will draw attention.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-12",
+      "type": "tone_trait",
+      "value": "Warm, open, personal tone using first- and second-person address ('we'/'you')",
+      "note": "Readers should feel personally addressed rather than spoken about impersonally.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-13",
+      "type": "forbidden_term",
+      "value": "Barco / the customer (impersonal third-person reference)",
+      "note": "Avoid referring to company or reader in impersonal third person when a personal alternative is natural.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-14",
+      "type": "forbidden_term",
+      "value": "colour",
+      "note": "British spelling forbidden in favor of American English per Cambridge Dictionary standard.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-15",
+      "type": "forbidden_term",
+      "value": "grey",
+      "note": "British spelling forbidden in favor of American English.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-16",
+      "type": "forbidden_term",
+      "value": "visualisation",
+      "note": "British spelling forbidden in favor of American English.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-17",
+      "type": "forbidden_term",
+      "value": "centre",
+      "note": "British spelling forbidden in favor of American English.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-18",
+      "type": "forbidden_term",
+      "value": "programme",
+      "note": "British spelling forbidden in favor of American English.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-19",
+      "type": "tone_trait",
+      "value": "Prefer active voice over passive voice",
+      "note": "e.g. 'A buys B' rather than 'B is bought by A.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-20",
+      "type": "taboo_topic",
+      "value": "Jargon in writing for a wide audience",
+      "note": "Avoid technical jargon in press releases, company introductions, market brochures; explain jargon on first use if necessary; technical terms acceptable only for specialist audiences.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-21",
+      "type": "tone_trait",
+      "value": "Short, frequently used words and simple sentence constructions",
+      "note": "Important since much of the audience is non-native English speakers; avoid long paragraphs.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-22",
+      "type": "channel_rule",
+      "value": "Maximum sentence length of 25 words",
+      "note": "Aim for concise sentences.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-23",
+      "type": "preferred_term",
+      "value": "We decided / I intend",
+      "note": "Simpler phrasing preferred over wordier constructions.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-24",
+      "type": "channel_rule",
+      "value": "Abbreviations written in full on first appearance with abbreviation in brackets, unless the abbreviation is more common than the full form.",
+      "note": "Applies to non-acronym abbreviations.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-25",
+      "type": "channel_rule",
+      "value": "Acronyms formed from first letters are written in all capitals (e.g. NATO).",
+      "note": "Distinguished from pronounceable word-abbreviations.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-26",
+      "type": "channel_rule",
+      "value": "Abbreviations composed of word parts that can be pronounced as words are written as plain text (e.g. Unicef).",
+      "note": "Not written in all caps.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-27",
+      "type": "channel_rule",
+      "value": "Numerals one to ten spelled in words except for page references and percentages; numerals 11 and above, decimals, and fractions written in figures.",
+      "note": "e.g. 'Two contracts,' 'Page 3,' '8%,' '24 displays.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-28",
+      "type": "channel_rule",
+      "value": "Phone and fax numbers written as +country code, area code, number (e.g. +32 56 123 456).",
+      "note": "Do not use format like '0032 56 123 456.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-29",
+      "type": "channel_rule",
+      "value": "Dates written consistently as day/month/year (e.g. '3 June 2004' or 'June 3, 2003').",
+      "note": "Avoid ordinal suffixes like '3rd June 2003.'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-30",
+      "type": "channel_rule",
+      "value": "In running text, place currency symbol before the figure with no space; 'million' can be abbreviated to 'm'; 'billion' always spelled out. If currency symbol omitted, currency word follows the figure.",
+      "note": "e.g. currency-250 million, currency-250m, currency-32 billion, 32 billion euro.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-31",
+      "type": "channel_rule",
+      "value": "Headlines should be active, present tense, and short (preferably no more than two lines).",
+      "note": "Applies to titles and headlines.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-32",
+      "type": "channel_rule",
+      "value": "Titles in brochures and communication tools use initial cap only for the first word of the title.",
+      "note": "Standard spelling rules for titles.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-33",
+      "type": "channel_rule",
+      "value": "Barco is always written in lower case with a capital B; never in full caps.",
+      "note": "Applies to all uses including copyright notices.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-34",
+      "type": "forbidden_term",
+      "value": "BARCO (full caps)",
+      "note": "Avoid writing Barco in all capital letters.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-35",
+      "type": "channel_rule",
+      "value": "'Visioneering a bright tomorrow' is written in lower case with a capital V.",
+      "note": "Consistent capitalization rule for the brand mantra.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-36",
+      "type": "channel_rule",
+      "value": "Copyright notices contain the copyright symbol, year of first publication, and owner, e.g. '(c) 2023, Barco.'",
+      "note": "Barco remains lower case with capital B in copyright notices.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-37",
+      "type": "channel_rule",
+      "value": "Product naming offers three possibilities: fully descriptive name, compound word highlighting USPs, or product code.",
+      "note": "e.g. Barco Canvas, ClickShare, Barco UniSee.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-38",
+      "type": "channel_rule",
+      "value": "Precede product names with 'Barco' to gain basic name protection and reinforce brand association.",
+      "note": "Reinforces position as a Barco product in the market.",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-39",
+      "type": "channel_rule",
+      "value": "Barco is a branded house; only the Barco name and logo are trademarked. Product/service names use descriptive (compound) names or product codes, not registered as trademarks except in exceptional cases.",
+      "note": "Exceptions include crown jewel products, competitive necessity, new market entries, or inherited trademarks from acquisitions (e.g. UniSee, Demetra, Nexxis, Eonis, ClickShare, wePresent).",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "rule-40",
+      "type": "tone_trait",
+      "value": "Confident and future-facing",
+      "note": "Barco's marketing comes across as confident and future-facing, per fan observation of their messaging and press releases.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-41",
+      "type": "tone_trait",
+      "value": "Inspirational, almost sci-fi, using big 'what if' style questions",
+      "note": "Brand frequently poses aspirational 'what if' questions (e.g., 'what if surgery could happen from anywhere'), giving an inspirational, slightly sci-fi tone.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-42",
+      "type": "preferred_term",
+      "value": "visioneering",
+      "note": "Barco uses this coined term (a mashup of 'vision' + 'engineering') in its marketing language.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-43",
+      "type": "preferred_term",
+      "value": "Barco",
+      "note": "Brand refers to itself simply as 'Barco' rather than using long corporate-speak division names, except in investor-relations documents; reflects a 'one brand' approach rather than house-of-brands.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-44",
+      "type": "tone_trait",
+      "value": "Plain, matter-of-fact writing with short sentences, not flowery",
+      "note": "Observed writing style avoids flowery language and uses short, matter-of-fact sentences.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-45",
+      "type": "tone_trait",
+      "value": "Not jargon-heavy even for technical products",
+      "note": "Even when discussing technical products like projectors and LED walls, the writing avoids heavy jargon.",
+      "channel": "",
+      "tier": "C",
+      "trust_score": 0.35
+    },
+    {
+      "id": "rule-46",
+      "type": "tone_trait",
+      "value": "inspirational",
+      "note": "Autumn campaign copy can lean slightly more inspirational, as long as it still follows the standard tone-of-voice rules.",
+      "channel": "",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "id": "rule-47",
+      "type": "preferred_term",
+      "value": "What if\" framing",
+      "note": "Suggested inspirational framing device for autumn campaign messaging.",
+      "channel": "",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "id": "rule-48",
+      "type": "preferred_term",
+      "value": "Visioneering",
+      "note": "Suggested inspirational language for autumn campaign messaging.",
+      "channel": "",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "id": "rule-49",
+      "type": "preferred_term",
+      "value": "Barco",
+      "note": "Use with a capital B and rest lower case; never use full caps, per capitalization rule in main guide.",
+      "channel": "",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "id": "rule-50",
+      "type": "forbidden_term",
+      "value": "BARCO",
+      "note": "Full caps version of the brand name should never be used, per capitalization rule.",
+      "channel": "",
+      "tier": "B",
+      "trust_score": 0.7
+    },
+    {
+      "id": "term-we-you",
+      "type": "preferred_term",
+      "value": "we / you",
+      "note": "Preferred alternative to 'Barco / the customer (impersonal third-person reference)'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "term-color",
+      "type": "preferred_term",
+      "value": "color",
+      "note": "Preferred alternative to 'colour'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "term-gray",
+      "type": "preferred_term",
+      "value": "gray",
+      "note": "Preferred alternative to 'grey'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "term-visualization",
+      "type": "preferred_term",
+      "value": "visualization",
+      "note": "Preferred alternative to 'visualisation'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "term-center",
+      "type": "preferred_term",
+      "value": "center",
+      "note": "Preferred alternative to 'centre'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    },
+    {
+      "id": "term-program",
+      "type": "preferred_term",
+      "value": "program",
+      "note": "Preferred alternative to 'programme'",
+      "channel": "",
+      "tier": "A",
+      "trust_score": 0.95
+    }
+  ],
+  "edges": [
+    {
+      "source": "rule-13",
+      "target": "term-we-you",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-14",
+      "target": "term-color",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-15",
+      "target": "term-gray",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-16",
+      "target": "term-visualization",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-17",
+      "target": "term-center",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-18",
+      "target": "term-program",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-34",
+      "target": "rule-1",
+      "relation": "preferred_over"
+    },
+    {
+      "source": "rule-50",
+      "target": "rule-1",
+      "relation": "preferred_over"
+    }
+  ]
+}

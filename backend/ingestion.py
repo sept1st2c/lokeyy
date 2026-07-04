@@ -17,6 +17,22 @@ import os
 
 CHUNK_MIN_LEN = 350
 
+# Source trust tiering: A = official/authoritative brand doc, B = default
+# (unmapped, e.g. internal memos/addenda), C = low-authority/unofficial
+# (fan/blogger takes, informal paraphrase). Used to weight how much a rule
+# or chunk should be trusted downstream in retrieval/critique.
+SOURCE_TIERS = {
+    "barco_guide.txt": "A",
+    "fan_notes.txt": "C",
+}
+DEFAULT_TIER = "B"
+TIER_TRUST_SCORE = {"A": 0.95, "B": 0.7, "C": 0.35}
+
+
+def tier_for_source(source: str) -> str:
+    return SOURCE_TIERS.get(source, DEFAULT_TIER)
+
+
 INJECTION_PATTERNS = [
     r"ignore (all|any)? ?(previous|prior|above) instructions",
     r"disregard (all|any)? ?(previous|prior|above)",
@@ -63,12 +79,17 @@ def load_and_ingest(data_dir: str) -> dict:
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
 
+        tier = tier_for_source(source)
+        trust_score = TIER_TRUST_SCORE[tier]
+
         for para in _split_paragraphs(text):
             hits = scan_for_injection(para)
             record = {
                 "id": f"chunk-{chunk_id}",
                 "source": source,
                 "text": para,
+                "tier": tier,
+                "trust_score": trust_score,
             }
             chunk_id += 1
             if hits:
