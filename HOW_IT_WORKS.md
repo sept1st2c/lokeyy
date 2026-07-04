@@ -108,28 +108,109 @@ a fresh AI call every time we restart the server during development/demo.
 
 ---
 
+## 4A. New: live brand search — "add any brand without a pre-extracted PDF"
+
+Barco's data came from a real PDF I manually extracted ahead of time (see
+§12's honest limitation about this). That's fine for a demo of one brand,
+but doesn't scale to "any brand a judge names on the spot." There's now a
+second ingestion path that doesn't need a PDF at all:
+
+**What it does:** type a brand name into the "Search a brand" box in the UI.
+The backend calls the Claude Code CLI in a special mode with its **real**
+web search and web fetch tools turned on (`backend/web_ingest.py`) — this is
+the *only* place in the whole system tools are ever enabled; every other
+call (draft/critique/refine/grounding) stays tool-free on purpose, so this
+is a deliberate, narrow exception, not a loosened default. It searches for
+that brand's voice/tone guidance, fetches a real page, and saves the
+extracted text — same as if you'd manually done what I did for Barco, just
+live and automatic.
+
+**What happens to that text next:** it goes through the *exact same*
+pipeline as every other document — chunked, regex-scanned for injection
+patterns (a live-fetched webpage is arguably a *more* realistic attack
+surface than our synthetic poisoned test doc, since it's real, unvetted,
+external content), and one more LLM call extracts it into the rule graph.
+The whole index and graph get rebuilt so the new brand is immediately
+queryable.
+
+**Trust tiering:** a web-sourced document is always tier B by default, no
+matter how official the page looked — it wasn't manually vetted the way
+`barco_guide.txt` was, so it never silently earns tier A. The UI shows it
+with a 🌐 icon instead of the ✓ used for vetted local files, so nobody
+mistakes "found on the web just now" for "verified official source."
+
+**Verified concretely:** searching "Nike" found and cited a real page
+(`tonelab.so/brand/nike`), correctly reported that Nike's actual internal
+brand book isn't public, extracted 8 genuine rules from the reputable
+secondary source it *did* find, and the rules count visibly went from 48 →
+56 in the running app. Deleting it correctly dropped it back down.
+
+**Data lifecycle — the actual design decision, not left implicit:** "when
+the session ends, is it deleted?" doesn't have a clean default answer,
+because a long-running local server has no natural "session boundary."
+The choice made here: **persist by default** (a brand you add survives a
+server restart, same as `barco_guide.txt` does) but store it in its own
+folder (`backend/data/web_sources/`), separate from the vetted root files,
+with an explicit **"Clear web sources"** button/endpoint
+(`DELETE /api/sources/web`) that wipes just that folder and rebuilds. You
+decide when to purge; nothing silently disappears, and nothing silently
+accumulates forever without an easy way to reset it either.
+
+**Honest limitation:** web-sourced content quality varies a lot by brand —
+some brands (like Barco, or brands with genuinely public style guides) will
+get clean, directly-usable rules; others (like Nike) have no public
+official document at all, and what gets extracted is a reputable
+*secondary analysis*, not the brand's actual internal rules. The system is
+honest about this in the extracted text itself (it explicitly says so when
+that's the case) rather than presenting secondary analysis as if it were
+the real thing.
+
+---
+
 ## 5. Stage ③: Retrieve — "only grab what's actually relevant"
 
 **What happens when someone types a question** (e.g. "write a LinkedIn post
-about our new display"):
+about our new display"), as of this update — **hybrid retrieval**, two
+different search methods combined:
 
-1. We search the chunks for the ones whose *words* best match the question.
-   We use a classic keyword-search algorithm called **BM25** (the same family
-   of algorithm search engines used before modern AI embeddings existed) —
-   deliberately **not** the fancier "AI embedding similarity search" you
-   might have heard of, because brand rules are about *exact words* ("never
-   say seamless") and keyword matching is actually the *more correct* tool
-   for that, not a compromise.
-2. From the rulebook graph, we **always** pull in every forbidden-term and
+1. **Lexical search (BM25)** — a classic keyword-search algorithm (the same
+   family search engines used before modern AI embeddings existed). Finds
+   chunks whose exact *words* match the question. Brand rules are often about
+   *exact vocabulary* ("never say seamless"), and keyword matching is the
+   correct tool for catching that — a fuzzy/semantic search can blur right
+   past the specific banned word.
+2. **Semantic search (embeddings)** — the question and every chunk are also
+   converted into number-vectors by a small local AI model
+   (`all-MiniLM-L6-v2`, via `sentence-transformers`, ~90MB, runs on CPU, no
+   API cost) that captures *meaning*, not just words. This catches
+   loosely-phrased questions that share *no* exact words with the guide —
+   e.g. asking "make it punchy and quick to skim" finds the rule phrased as
+   "use short, frequently used words; keep sentences short," even though
+   the two sentences share almost no vocabulary. **Verified concretely**: on
+   that exact query, BM25 alone ranked the right rule 2nd; hybrid promoted it
+   to 1st.
+3. **Fusion (Reciprocal Rank Fusion)** — the two ranked lists are merged
+   using each chunk's *rank* in each list (not raw scores, which live on
+   incomparable scales — BM25 scores are unbounded, cosine similarity is
+   -1..1). A chunk that both methods agree is relevant rises to the top.
+4. From the rulebook graph, we **always** pull in every forbidden-term and
    taboo-topic rule (non-negotiable, cheap, must never be missed), plus only
    the *other* rules whose words overlap the question.
+
+**Honest tradeoff, found by testing, not assumed:** hybrid isn't a strict
+free upgrade — on the same test query it also pulled in one noisy, barely-
+relevant short fragment (a leftover clean sentence from the poisoned test
+document) that BM25 alone hadn't surfaced. Embedding similarity can occasionally
+over-rate short, generic-sounding fragments. Worth knowing before claiming
+hybrid is simply "better" with no caveats.
 
 **Why this matters:** one of the four graded requirements is literally
 "extract only the specific context needed, avoiding excessive token bloat."
 Dumping an entire 100-page style guide into every AI call is slow, expensive,
 and actually makes the AI *worse* at following instructions (too much
 irrelevant text drowns out what matters). This step is the deliberate,
-justified answer to that requirement.
+justified answer to that requirement — and it now covers both the
+exact-vocabulary case and the loosely-phrased-question case.
 
 ---
 
@@ -292,6 +373,11 @@ except the already-logged-in Claude Code session.
 - **The trust-tier demo:** ask something that would only be "answerable"
   from the low-trust fan-notes document, and point out the resulting low
   confidence score and gray "C" tier badge.
+- **The "any brand, live" demo:** type a brand name (e.g. "Patagonia") into
+  the "Search a brand" box, let it actually search + fetch + rebuild the
+  graph in front of the judge (takes a minute or two — narrate what's
+  happening while it runs), then ask a question about *that* brand's voice.
+  Directly answers "does this only work for the one brand you pre-loaded?"
 
 ---
 
@@ -310,15 +396,17 @@ except the already-logged-in Claude Code session.
   end-to-end runs against the real backend (arguably *more* convincing for a
   live demo than a green checkmark, but say "manually verified end-to-end,"
   not "unit tested").
-- **Lexical retrieval can miss paraphrases.** BM25 matches exact/overlapping
-  words. A question phrased in words that don't appear anywhere in the guide
-  (e.g. "make it pop" when the guide never uses that phrase) may retrieve
-  weaker chunks than a meaning-based search would. This is a deliberate
-  trade-off (see §17), not an oversight — but it is a real limitation for
-  loosely-phrased questions.
-- **Latency.** A query that triggers the fetch-more branch runs 5+ sequential
-  model calls and can take 30–45 seconds. Fine for a demo, not fast enough
-  for a snappy production product without streaming (see §13).
+- **Retrieval is now hybrid (BM25 + embeddings), which mostly fixes the old
+  "misses paraphrases" gap — but isn't a free lunch.** The embedding half can
+  occasionally over-rate a short, generic-sounding fragment that happens to
+  sound topically similar without actually being relevant (reproduced
+  directly, see Stage ③). Fusion via RRF limits the damage but doesn't
+  eliminate it.
+- **Latency, now slightly higher.** A query that triggers the fetch-more
+  branch runs 5+ sequential model calls and can take 30 seconds to 3 minutes
+  (embedding encode itself is fast, ~50ms — the variance is almost entirely
+  from the model calls, not retrieval). Fine for a demo, not fast enough for
+  a snappy production product without streaming (see §13).
 - **No conversation memory.** Every question is answered from scratch; there's
   no "make it shorter" follow-up that remembers the previous answer.
 - **Single point of failure on auth.** The system calls Claude through the
@@ -337,15 +425,12 @@ except the already-logged-in Claude Code session.
 ## 13. If we had more time — how we'd actually improve the architecture
 
 These aren't vague "future work" bullet points — each one addresses a
-limitation from §12 with a specific, buildable next step:
+limitation from §12 with a specific, buildable next step. (Item 1, hybrid
+retrieval, has since been implemented — see Stage ③ and §17 — kept here
+struck through so the history of what was "next" vs. "now built" stays
+visible.)
 
-1. **Hybrid retrieval (lexical + embeddings).** Keep BM25 + the graph for the
-   exact-compliance layer (§17 explains why that stays), but add an embedding
-   index alongside it purely for *recall* — so a loosely-phrased question that
-   shares no exact words with the guide still finds the right chunk. Rerank
-   the merged candidate set before it reaches the critic. This is the single
-   highest-value upgrade and directly fixes the "misses paraphrases"
-   limitation.
+~~1. Hybrid retrieval (lexical + embeddings) — implemented, see Stage ③.~~
 2. **Deeper graph relationships.** Right now the graph is mostly one relation
    type (`preferred_over`). A richer schema — `conflicts_with` between a tone
    rule and a channel rule, `applies_to_channel` edges — would let the critic
@@ -384,7 +469,7 @@ Going requirement by requirement, honestly:
 | Requirement | Verdict | Why |
 |---|---|---|
 | **1. Resourceful Ingestion + defense** | Strong match | Real, publicly-sourced brand PDF (not synthetic filler text); the injection defense isn't just described, it's *demoable* — a real poisoned document gets caught live, every time, on request. |
-| **2. Context Engineering** | Strong match | Retrieval is deliberately *not* the default "throw embeddings at it" choice — BM25 + graph-guided filtering was chosen because it's the more correct tool for exact-vocabulary rules, and that reasoning is defensible under questioning (§17), not just "it was faster to build." |
+| **2. Context Engineering** | Strong match | Hybrid retrieval (BM25 + embeddings, fused via RRF) plus graph-guided rule filtering — each half chosen for a specific, tested reason (§17), not "throw the default at it and hope." |
 | **3. Critique & Loop Engine** | Strongest match | This is where a lot of hackathon submissions would fake it — one critic call, always "refine," call it a loop. We implemented the literal branch the brief describes: a rule violation refines with the *same* context; missing information triggers an actual wider re-retrieval *first*. That distinction is visibly demoable, not just claimed. |
 | **4. Harness Engineering** | Strong match | Not one self-reported number — three layers: a deterministic check (does the cited id exist), an independent second-model check (does the citation's content actually support the claim), and a trust-tier-weighted confidence score. |
 
@@ -401,6 +486,11 @@ does what's asked, not a hardened production system.
 If a judge asks "what would I *not* see in five other teams' submissions,"
 these are the real, specific answers:
 
+- **It isn't locked to one pre-loaded brand.** Most single-brand demos can
+  only answer "what if I ask about a brand you didn't prep for" with "we
+  didn't build that." This one can search the web, fetch a real page, and
+  rebuild its own graph for a brand named live, on the spot — verified
+  working, not aspirational.
 - **The failure-mode branch is real, not decorative.** "You broke a rule"
   and "there isn't enough information" get genuinely different treatment
   (refine vs. fetch-more-then-refine) — most "iterative loop" demos collapse
@@ -468,28 +558,36 @@ structured answer instead of a re-derived guess.
 
 ## 17. When would you actually want this kind of retrieval vs. standard RAG?
 
-"Standard" modern RAG converts everything to embeddings and does
-meaning-based similarity search. We used BM25 (keyword) + a graph instead.
-Neither is "the right one" universally — they fit different problems:
+*(Updated: this used to describe a choice between lexical and embedding-based
+retrieval. We've since implemented both, fused via RRF — see Stage ③. The
+question below is now "why both, not either," which is the more honest and
+more interesting version of it.)*
 
-**Use lexical + graph (what we built) when the domain is fundamentally about
-enforcing exact vocabulary or compliance rules** — brand style guides, legal/
-compliance language, restricted terminology lists, code style guides. In
-these domains, a rule like "never say X, always say Y" is about the literal
-word, and a semantic search that treats "seamless" and "smooth" as
-basically-the-same-meaning is actively counterproductive — it can blur past
-the exact word you needed to catch.
+"Standard" modern RAG converts everything to embeddings and does purely
+meaning-based similarity search. We use BM25 (keyword) **and** embeddings,
+combined — because for this domain, either one *alone* has a real failure
+mode:
 
-**Use embedding-based RAG when the domain is about factual retrieval over
-large, prose-heavy corpora where the user's question is phrased differently
-than the source material** — customer support over a big product manual,
-semantic search across research papers, Q&A over long policy documents.
-There, meaning-matching across paraphrases is the entire point, and exact
-keyword overlap would miss too much.
+**Lexical (BM25) alone fails when the question is loosely phrased.** Brand
+rules are exact-vocabulary problems ("never say X, always say Y"), so
+keyword matching is the right primary tool — but if a question shares no
+words with the guide's phrasing ("make it punchy" vs. the guide's "use
+short, frequently used words"), pure keyword search can rank the right
+chunk low or miss it. We reproduced this directly (§ above, Stage ③).
 
-**The honest, complete answer for a real product** is usually *both*
-(hybrid) — which is exactly §13's top improvement: embeddings for
-large-scale "which section is even relevant," lexical + graph for the
-exact-compliance layer on top. We built the second half first because it's
-the part that's specific and defensible for *this* problem, not because the
-first half doesn't matter.
+**Embeddings alone fail for exactly the opposite reason.** A semantic search
+that treats "seamless" and "smooth" as basically-the-same-meaning is
+actively counterproductive for a rule that specifically bans one exact word
+— it can blur right past the one thing you needed to catch, and (also
+reproduced directly) can over-rate short, generic-sounding fragments that
+happen to *sound* topically similar without actually being relevant.
+
+**Fusing both, via rank (not raw score), gets the benefit of each without
+picking one failure mode over the other.** This is the right default for
+any domain that mixes exact-compliance rules *and* natural-language
+questions about them — which is most real brand/legal/compliance use cases,
+not just ours. Pure embedding-only RAG remains the right (simpler, cheaper)
+choice when a domain has *no* exact-vocabulary constraints at all —
+general-purpose document Q&A, research-paper search, customer support over
+a product manual — where meaning-matching is the entire point and there's
+nothing exact to accidentally blur past.

@@ -99,3 +99,60 @@ body {
   from { background-position: 0 0; }
   to { background-position: 0 -800px; }
 }
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 42px 42px;
+  animation: gridPan 40s linear infinite;
+  mask-image: radial-gradient(ellipse 70% 60% at 65% 30%, black 0%, transparent 75%);
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+
+@keyframes gradientFlow {
+  from { background-position: 0% 0; }
+  to { background-position: 200% 0; }
+}
+.gradient-line {
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #ff7a17, #c4b5fd, #a0c3ec, #7c3aed, #ff7a17);
+  background-size: 200% 100%;
+  animation: gradientFlow 5s linear infinite;
+  box-shadow: 0 0 12px 1px rgba(196, 181, 253, 0.5);
+}
+
+@keyframes flowDot {
+  0% { top: -2%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.flow-dot {
+  position: absolute;
+  left: -3.5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #a0c3ec;
+  box-shadow: 0 0 10px 2px rgba(160, 195, 236, 0.85);
+  animation: flowDot 3.6s ease-in-out infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.blink-cursor::after {
+  content: "▌";
+  animation: blinkCursor 1s step-start infinite;
+  margin-left: 2px;
+}

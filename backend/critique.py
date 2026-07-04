@@ -195,7 +195,11 @@ def answer_query(query: str, retriever: Retriever, rules: list[dict]) -> dict:
     trace = []
 
     chunks = retriever.top_k(query, k=3)
-    context_rules = graph_guided_rules(query, rules)
+    # Scope the rule graph to whichever brand(s) the retriever already found
+    # relevant -- prevents e.g. Barco's spelling rules from leaking into a
+    # Nike-voice answer when both are loaded (see retrieval.py docstring).
+    relevant_sources = {c["source"] for c in chunks}
+    context_rules = graph_guided_rules(query, rules, relevant_sources=relevant_sources)
     context_block = _format_context(chunks, context_rules)
     valid_chunk_ids = {c["id"] for c in chunks}
 
@@ -246,7 +250,10 @@ def answer_query(query: str, retriever: Retriever, rules: list[dict]) -> dict:
         if failure_reason == "insufficient_context" and not fetched_more:
             # Same context won't fix this -- fetch a wider net before refining.
             chunks = retriever.top_k(query, k=6)
-            context_rules = graph_guided_rules(query, rules, max_contextual=10)
+            relevant_sources = {c["source"] for c in chunks}
+            context_rules = graph_guided_rules(
+                query, rules, max_contextual=10, relevant_sources=relevant_sources
+            )
             context_block = _format_context(chunks, context_rules)
             new_valid_chunk_ids = {c["id"] for c in chunks}
             newly_added = sorted(new_valid_chunk_ids - valid_chunk_ids)

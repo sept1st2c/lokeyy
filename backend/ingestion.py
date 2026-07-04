@@ -18,7 +18,9 @@ import os
 CHUNK_MIN_LEN = 350
 
 # Source trust tiering: A = official/authoritative brand doc, B = default
-# (unmapped, e.g. internal memos/addenda), C = low-authority/unofficial
+# (unmapped, e.g. internal memos/addenda, or anything web-sourced -- fetched
+# live, not manually vetted, so it never earns tier A automatically no
+# matter how official the fetched page looked), C = low-authority/unofficial
 # (fan/blogger takes, informal paraphrase). Used to weight how much a rule
 # or chunk should be trusted downstream in retrieval/critique.
 SOURCE_TIERS = {
@@ -28,8 +30,20 @@ SOURCE_TIERS = {
 DEFAULT_TIER = "B"
 TIER_TRUST_SCORE = {"A": 0.95, "B": 0.7, "C": 0.35}
 
+# provenance is a display/audit label, separate from tier (which drives trust
+# weighting) -- lets the UI say *why* something is tier B (web-sourced vs.
+# just an unmapped local file) without conflating the two concepts.
+PROVENANCE = {
+    "barco_guide.txt": "official-pdf",
+    "fan_notes.txt": "synthetic",
+    "poisoned_addendum.txt": "synthetic",
+}
+DEFAULT_PROVENANCE = "local"
 
-def tier_for_source(source: str) -> str:
+
+def tier_for_source(source: str, provenance: str) -> str:
+    if provenance == "web":
+        return DEFAULT_TIER
     return SOURCE_TIERS.get(source, DEFAULT_TIER)
 
 
@@ -69,17 +83,31 @@ def _split_paragraphs(text: str) -> list[str]:
 
 
 def load_and_ingest(data_dir: str) -> dict:
-    """Returns {"clean_chunks": [...], "quarantined": [...]} """
+    """Returns {"clean_chunks": [...], "quarantined": [...]}
+
+    Scans two locations: the root data_dir (vetted local sources -- PDF
+    extracts, synthetic test docs) and data_dir/web_sources/ (anything
+    fetched live via web_ingest.py). Web-sourced content goes through the
+    exact same injection scan as everything else -- arguably a MORE
+    realistic threat surface than the synthetic poisoned test doc, since
+    it's real, unvetted, external content.
+    """
     clean_chunks = []
     quarantined = []
     chunk_id = 0
 
-    for path in sorted(glob.glob(os.path.join(data_dir, "*.txt"))):
+    root_files = sorted(glob.glob(os.path.join(data_dir, "*.txt")))
+    web_files = sorted(glob.glob(os.path.join(data_dir, "web_sources", "*.txt")))
+
+    for path, provenance_override in [(p, None) for p in root_files] + [
+        (p, "web") for p in web_files
+    ]:
         source = os.path.basename(path)
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
 
-        tier = tier_for_source(source)
+        provenance = provenance_override or PROVENANCE.get(source, DEFAULT_PROVENANCE)
+        tier = tier_for_source(source, provenance)
         trust_score = TIER_TRUST_SCORE[tier]
 
         for para in _split_paragraphs(text):
@@ -90,6 +118,7 @@ def load_and_ingest(data_dir: str) -> dict:
                 "text": para,
                 "tier": tier,
                 "trust_score": trust_score,
+                "provenance": provenance,
             }
             chunk_id += 1
             if hits:

@@ -155,7 +155,17 @@ export default function GraphView() {
           ctx.font = "11px system-ui, sans-serif";
           const rawLabel = n.label ?? n.id;
           const label = rawLabel.length > 22 ? rawLabel.slice(0, 22) + "…" : rawLabel;
-          ctx.fillText(label, n.x + 12, n.y + 4);
+          const labelWidth = ctx.measureText(label).width;
+          // Flip to the left of the node instead of clipping off the right
+          // edge of the canvas (visible whenever a node settles near the
+          // right boundary, e.g. "Barco / the customer" style long labels).
+          if (n.x + 12 + labelWidth > width - 4) {
+            ctx.textAlign = "right";
+            ctx.fillText(label, n.x - 12, n.y + 4);
+            ctx.textAlign = "left";
+          } else {
+            ctx.fillText(label, n.x + 12, n.y + 4);
+          }
         }
       }
 

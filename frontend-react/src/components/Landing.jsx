@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 import Reveal from "./Reveal.jsx";
+import CountUp from "./CountUp.jsx";
+import BuzzwordTicker from "./BuzzwordTicker.jsx";
+import GraphView from "./GraphView.jsx";
+import GradientLine from "./GradientLine.jsx";
+import TraceTerminal from "./TraceTerminal.jsx";
+import CodeSnippet from "./CodeSnippet.jsx";
 import { getStatus } from "../lib/api.js";
 
 function Eyebrow({ children, tone = "body-mid" }) {
@@ -81,7 +87,7 @@ function StatBlock({ value, label, accent }) {
         className="font-display text-5xl md:text-6xl font-normal tracking-[-2px]"
         style={{ color: accent }}
       >
-        {value}
+        <CountUp value={value} />
       </div>
       <div className="font-mono-brand uppercase text-[11px] tracking-[1.2px] text-body-mid">
         {label}
@@ -103,6 +109,7 @@ export default function Landing({ onLaunch }) {
     <div className="bg-canvas text-ink">
       {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden border-b border-hairline">
+        <div className="grid-bg absolute inset-0 pointer-events-none" />
         <div
           className="drift-glow absolute -top-40 -right-40 w-[560px] h-[560px] rounded-full blur-3xl opacity-20 pointer-events-none"
           style={{ background: "radial-gradient(circle, #7c3aed, transparent 70%)" }}
@@ -121,6 +128,9 @@ export default function Landing({ onLaunch }) {
               <br />
               like AI now. <span className="text-body-mid">LOCI doesn't let yours.</span>
             </h1>
+          </Reveal>
+          <Reveal delay={200}>
+            <GradientLine width="180px" className="mt-6" />
           </Reveal>
           <Reveal delay={160}>
             <p className="mt-7 max-w-xl text-[17px] leading-relaxed text-body">
@@ -147,6 +157,9 @@ export default function Landing({ onLaunch }) {
           </Reveal>
         </div>
       </section>
+
+      {/* ---------- TICKER ---------- */}
+      <BuzzwordTicker />
 
       {/* ---------- LIVE STATS ---------- */}
       <section className="border-b border-hairline">
@@ -202,14 +215,22 @@ export default function Landing({ onLaunch }) {
             </h2>
           </Reveal>
 
-          <div className="flex flex-col gap-4">
-            {STAGES.map((s, i) => (
-              <Reveal key={s.n} delay={i * 70}>
-                <div className="rounded-sm border border-hairline bg-canvas-card p-7 md:p-8 flex flex-col md:flex-row gap-6 md:gap-10">
-                  <div className="font-mono-brand text-body-mid text-sm tracking-[1.2px] shrink-0 md:w-14">
-                    {s.n}
-                  </div>
-                  <div className="flex-1">
+          <div className="relative pl-10 md:pl-14">
+            <div className="absolute left-[15px] md:left-[19px] top-3 bottom-3 w-px bg-hairline overflow-hidden">
+              <div className="flow-dot" style={{ animationDelay: "0s" }} />
+              <div className="flow-dot" style={{ animationDelay: "1.2s" }} />
+              <div className="flow-dot" style={{ animationDelay: "2.4s" }} />
+            </div>
+            <div className="flex flex-col gap-4">
+              {STAGES.map((s, i) => (
+                <Reveal key={s.n} delay={i * 70}>
+                  <div className="relative rounded-sm border border-hairline bg-canvas-card p-7 md:p-8 flex flex-col md:flex-row gap-6 md:gap-10">
+                    <div
+                      className="absolute -left-10 md:-left-14 top-8 w-7 h-7 rounded-full border border-hairline bg-canvas flex items-center justify-center font-mono-brand text-[11px] text-body-mid"
+                    >
+                      {s.n}
+                    </div>
+                    <div className="flex-1">
                     <h3 className="font-display font-normal text-xl md:text-2xl tracking-[-0.4px] mb-2.5">
                       {s.title}
                     </h3>
@@ -227,10 +248,67 @@ export default function Landing({ onLaunch }) {
                       ))}
                     </div>
                   </div>
-                </div>
-              </Reveal>
-            ))}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* ---------- SEE IT THINK ---------- */}
+      <section className="border-b border-hairline">
+        <div className="max-w-5xl mx-auto px-6 py-24">
+          <Reveal>
+            <Eyebrow>See It Think</Eyebrow>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="font-display font-normal text-3xl md:text-[44px] leading-[1.1] tracking-[-1px] max-w-2xl mb-5">
+              A real trace. A real API call.
+            </h2>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="max-w-2xl text-[15px] leading-relaxed text-body-mid mb-12">
+              The terminal on the left is an actual captured run — not a mockup script.
+              The guide genuinely has no specs for that product, so the critic genuinely
+              fails it, fetches more context, and the grounding check still catches an
+              unsupported citation on the second pass. On the right: exactly how to call
+              the same endpoint yourself.
+            </p>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Reveal delay={180}>
+              <TraceTerminal />
+            </Reveal>
+            <Reveal delay={240}>
+              <CodeSnippet />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- LIVE GRAPH ---------- */}
+      <section className="border-b border-hairline">
+        <div className="max-w-5xl mx-auto px-6 py-24">
+          <Reveal>
+            <Eyebrow>The Memory, Live</Eyebrow>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="font-display font-normal text-3xl md:text-[44px] leading-[1.1] tracking-[-1px] max-w-2xl mb-5">
+              Not a diagram. The actual graph, right now.
+            </h2>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="max-w-2xl text-[15px] leading-relaxed text-body-mid mb-10">
+              This is the real rule graph built from Barco's guidelines, fetched live from{" "}
+              <code className="text-body">/api/graph</code> — force-directed, redrawn every frame. Zoom
+              into a term like <code className="text-body">colour</code> and follow its edge to{" "}
+              <code className="text-body">color</code>.
+            </p>
+          </Reveal>
+          <Reveal delay={200}>
+            <GraphView />
+          </Reveal>
         </div>
       </section>
 

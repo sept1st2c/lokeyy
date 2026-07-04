@@ -78,7 +78,10 @@ function App() {
           <StatusStrip status={status} error={statusError} />
         </div>
         <div className="max-w-4xl mx-auto">
-          <SourcesPanel sources={status?.sources} />
+          <SourcesPanel
+            sources={status?.sources}
+            onSourcesChanged={() => getStatus().then(setStatus).catch(() => {})}
+          />
         </div>
       </div>
 

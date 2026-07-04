@@ -57,7 +57,13 @@ def call_claude(
     json_schema: dict | None = None,
     model: str = "sonnet",
     timeout: int = 60,
+    tools: str = "",
 ) -> str | dict:
+    """`tools` defaults to "" (no tools) for every RAG generation call
+    (draft/critique/refine/grounding) -- deliberate, keeps those calls
+    deterministic and unable to reach outside the sanitized DATA block passed
+    in the prompt. Only the web-ingestion path (web_ingest.py) should ever
+    pass a non-empty value (e.g. "WebSearch,WebFetch")."""
     fd, sysprompt_path = tempfile.mkstemp(suffix=".txt", prefix="claude_sysprompt_")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -67,7 +73,7 @@ def call_claude(
             CLAUDE_BIN, "-p",
             "--output-format", "json",
             "--no-session-persistence",
-            "--tools", "",
+            "--tools", tools,
             "--system-prompt-file", sysprompt_path,
             "--model", model,
         ]

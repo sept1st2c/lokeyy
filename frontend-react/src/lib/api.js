@@ -122,3 +122,26 @@ export async function getGraph() {
   if (!res.ok) throw new Error(`Graph failed: ${res.status}`);
   return res.json();
 }
+
+// Live web ingestion: search for a brand's voice guidance, fetch a real
+// page, and fold it into the index/graph. Slow (web search + fetch + a
+// graph-extraction model call) — expect 30s-3min, no mock shortcut since
+// there's nothing meaningful to fake here.
+export async function addWebSource(brand) {
+  const res = await fetch("/api/sources/web", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ brand }),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.detail || `Add source failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function clearWebSources() {
+  const res = await fetch("/api/sources/web", { method: "DELETE" });
+  if (!res.ok) throw new Error(`Clear sources failed: ${res.status}`);
+  return res.json();
+}
